@@ -1,0 +1,11 @@
+*.docx 
+*.xlsx
+*.csv
+/vale shop
+/planilhas_input
+*.spec
+/build
+/node_modules
+/dist 
+/__pycache__/
+*.pyc
