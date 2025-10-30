@@ -66,7 +66,6 @@ class AppGeradorEtiquetas:
         scrollbar.config(command=self.log_text.yview)
 
     def log(self, message):
-        """ Adiciona uma mensagem ao widget de log na thread principal. """
         def _log():
             self.log_text.config(state='normal')
             self.log_text.insert(tk.END, message + "\n")
@@ -74,7 +73,6 @@ class AppGeradorEtiquetas:
             self.log_text.config(state='disabled')
             self.log_text.update_idletasks()
         
-        # Garante que a atualização da GUI seja feita na thread principal
         self.root.after(0, _log)
 
     def limpar_log(self):
@@ -96,7 +94,7 @@ class AppGeradorEtiquetas:
     def selecionar_pasta(self):
         pasta = filedialog.askdirectory(title="Selecione uma pasta com os arquivos")
         if pasta:
-            self.arquivos_selecionados = [pasta] # A lógica de processamento tratará como pasta
+            self.arquivos_selecionados = [pasta]
             self.lbl_entrada_status.config(text=f"Pasta selecionada: {pasta}")
             self.log(f"Entrada definida: Pasta {pasta}")
 
@@ -125,10 +123,8 @@ class AppGeradorEtiquetas:
             messagebox.showerror("Erro", "Nenhum local de saída selecionado.")
             return
 
-        # Desabilita o botão para evitar cliques duplos
         self.btn_gerar.config(text="PROCESSANDO...", state='disabled')
 
-        # Inicia o processamento em uma thread separada para não travar a GUI
         threading.Thread(
             target=self.processar_em_thread,
             args=(self.arquivos_selecionados, self.caminho_arquivo_saida_completo),
@@ -139,11 +135,8 @@ class AppGeradorEtiquetas:
         try:
             self.log("Iniciando processamento...")
             
-            # 1. Processar entradas (backend)
-            # A função self.log é passada como o 'logger'
             dados = backend.processar_entradas(entradas, self.log)
             
-            # 2. Gerar documento (backend)
             if dados:
                 backend.gerar_documento_word(dados, saida, self.log)
             else:
@@ -151,15 +144,12 @@ class AppGeradorEtiquetas:
 
         except Exception as e:
             self.log(f"\nERRO INESPERADO: {e}")
-            # Mostra o erro em um popup também
             self.root.after(0, lambda: messagebox.showerror("Erro Inesperado", str(e)))
         finally:
-            # Reabilita o botão na thread principal
             self.root.after(0, lambda: self.btn_gerar.config(text="GERAR ETIQUETAS", state='normal'))
 
 
 if __name__ == "__main__":
-    # Verifica se as dependências estão instaladas
     root = tk.Tk()
     app = AppGeradorEtiquetas(root)
     root.mainloop()
